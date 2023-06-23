@@ -11,6 +11,7 @@ function generateRandomString() {
 }
 
 const express = require("express");
+const { post } = require("request");
 const app = express();
 const PORT = 8080; // default port 8080
 
@@ -22,6 +23,12 @@ const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+
+app.post("/urls/:id/delete", (req, res) => {
+  const id = req.params.id;
+  delete urlDatabase[id];
+  res.redirect("http://localhost:8080/urls");
+});
 
 app.post("/urls", (req, res) => {
   console.log(req.body); // Log the POST request body to the console
