@@ -30,6 +30,20 @@ app.post("/urls/:id/delete", (req, res) => {
   res.redirect("http://localhost:8080/urls");
 });
 
+app.post('/urls/login', (req, res) => {
+  const username = req.body.username;
+  res.cookie('username', username);
+  res.redirect("/urls");
+});
+
+
+app.post("/urls/:id/edit", (req, res) => {
+  const id = req.params.id;
+  const newURL = req.body.longURL;
+  urlDatabase[id] = newURL;
+  res.redirect(`/urls/${id}`);
+});
+
 app.post("/urls", (req, res) => {
   console.log(req.body); // Log the POST request body to the console
   const id = generateRandomString(); // create a new id with random letters
