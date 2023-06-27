@@ -38,6 +38,11 @@ app.post('/login', (req, res) => {
   res.redirect("/urls");
 });
 
+app.post('/logout', (req, res) => {
+  res.clearCookie('username')
+  res.redirect("/urls")
+});
+
 app.post("/urls/:id/edit", (req, res) => {
   const id = req.params.id;
   const newURL = req.body.longURL;
@@ -49,9 +54,8 @@ app.post("/urls", (req, res) => {
   console.log(req.body); // Log the POST request body to the console
   const id = generateRandomString(); // create a new id with random letters
   urlDatabase[id] = req.body.longURL // add the new url to the database
-  res.redirect(`/urls/${id}`) //rederect
+  res.redirect(`/urls/${id}`) //rederect 
 });
-
 
 app.get("/u/:id", (req, res) => {
   const id = req.params.id;
@@ -60,7 +64,9 @@ app.get("/u/:id", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const templateVars = { 
+    username: req.cookies["username"],};
+  res.render("urls_new",templateVars);
 });
 
 app.get("/urls", (req, res) => {
@@ -73,7 +79,8 @@ app.get("/urls", (req, res) => {
 app.get("/urls/:id", (req, res) => {
   const id = req.params.id;
   const longURL = urlDatabase[id];
-  const templateVars = { id: id, longURL: longURL };
+  const templateVars = { id: id, longURL: longURL, 
+    username: req.cookies["username"],};
   res.render("urls_show", templateVars);
 });
 
