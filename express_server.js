@@ -10,6 +10,7 @@ function generateRandomString() {
   return randomString;
 }
 
+
 const express = require("express");
 const { post } = require("request");
 const app = express();
@@ -19,6 +20,10 @@ var cookieParser = require('cookie-parser')
 app.set("view engine", "ejs");
 
 app.use(express.urlencoded({ extended: true }));
+
+const users = {
+  
+}
 
 app.use(cookieParser())
 const urlDatabase = {
@@ -57,6 +62,37 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${id}`) //rederect 
 });
 
+app.get("/register", (req,res) => {
+  res.render("urls_registration");
+});
+
+app.post("/register", (req, res) => {
+  const { email, password } = req.body;
+if (email === "" || password === "") {
+  res.sendStatus(400);
+  return;
+}
+
+const existingUser = Object.values(users).find(user => user.email === email)
+if (existingUser) {
+  res.sendStatus(400);
+  return;
+}
+  const userRandomID = generateRandomString();
+
+  const user = {
+    id: userRandomID,
+    email: email,
+    password: password,
+  };
+
+  users[userRandomID] = user;
+  res.cookie("userRandomID", userRandomID);
+  console.log(users);
+  res.redirect("/urls");
+});
+
+
 app.get("/u/:id", (req, res) => {
   const id = req.params.id;
   const longURL = urlDatabase[id];
@@ -64,23 +100,37 @@ app.get("/u/:id", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  const templateVars = { 
-    username: req.cookies["username"],};
-  res.render("urls_new",templateVars);
+  const userId = req.cookies.userRandomID;
+  const user = users[userId];
+
+  const templateVars = {
+    user: user,
+  };
+  res.render("urls_new", templateVars);
 });
 
 app.get("/urls", (req, res) => {
+  const userId = req.cookies.userRandomID; // Get the user ID from the cookie
+  const user = users[userId]; // Look up the user object using the ID
+
   const templateVars = {
-    username: req.cookies["username"],
-     urls: urlDatabase };
+    user: user,
+    urls: urlDatabase,
+  };
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/:id", (req, res) => {
+  const userId = req.cookies.userRandomID; // Get the user ID from the cookie
+  const user = users[userId]; // Look up the user object using the ID
   const id = req.params.id;
   const longURL = urlDatabase[id];
-  const templateVars = { id: id, longURL: longURL, 
-    username: req.cookies["username"],};
+
+  const templateVars = {
+    user: user,
+    id: id,
+    longURL: longURL,
+  };
   res.render("urls_show", templateVars);
 });
 
