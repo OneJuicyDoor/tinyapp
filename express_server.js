@@ -66,6 +66,10 @@ app.get("/register", (req,res) => {
   res.render("urls_registration");
 });
 
+app.get("/login", (req,res) => {
+  res.render("urls_loginpage.ejs")
+});
+
 app.post("/register", (req, res) => {
   const { email, password } = req.body;
 if (email === "" || password === "") {
