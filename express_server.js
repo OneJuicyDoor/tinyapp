@@ -13,13 +13,14 @@ function generateRandomString() {
 function authenticateUser(email, password) {
   for (const userId in users) {
     const user = users[userId];
-    if (user.email === email && user.password === password) {
+    if (user.email === email && bcrypt.compareSync(password, user.hashedPassword)) {
       return userId;
     }
   }
   return false;
 }
 
+const bcrypt = require("bcryptjs");
 const express = require('express');
 const app = express();
 const PORT = 8080; // default port 8080
@@ -109,6 +110,7 @@ app.get('/login', (req, res) => {
 
 app.post('/register', (req, res) => {
   const { email, password } = req.body;
+  const hashedPassword = bcrypt.hashSync(password, 10)
   if (email === '' || password === '') {
     res.sendStatus(400);
     return;
@@ -125,7 +127,7 @@ app.post('/register', (req, res) => {
   const user = {
     id: userRandomID,
     email: email,
-    password: password
+    hashedPassword: hashedPassword
   };
 
   users[userRandomID] = user;
