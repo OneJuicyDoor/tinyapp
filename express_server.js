@@ -68,18 +68,34 @@ app.post('/urls/:id/edit', (req, res) => {
 });
 
 app.post('/urls', (req, res) => {
+  const userId = req.cookies.userRandomID;
+  const user = users[userId];
+
+  if (!user) {
+    res.status(401).send('You must be logged in to shorten URLs.');
+  } else {
   console.log(req.body); // Log the POST request body to the console
   const id = generateRandomString(); // create a new id with random letters
   urlDatabase[id] = req.body.longURL; // add the new url to the database
-  res.redirect(`/urls/${id}`); // redirect
+  res.redirect(`/urls/${id}`)}; // redirect
 });
 
 app.get('/register', (req, res) => {
-  res.render('urls_registration');
+  const userId = req.cookies.userRandomID;
+  if (userId && users[userId]) {
+    res.redirect('/urls');
+  } else {
+    res.render('urls_registration');
+  }
 });
 
 app.get('/login', (req, res) => {
-  res.render('urls_loginpage.ejs');
+  const userId = req.cookies.userRandomID;
+  if (userId && users[userId]) {
+    res.redirect('/urls');
+  } else {
+    res.render('urls_loginpage.ejs');
+  }
 });
 
 app.post('/register', (req, res) => {
@@ -112,17 +128,25 @@ app.post('/register', (req, res) => {
 app.get('/u/:id', (req, res) => {
   const id = req.params.id;
   const longURL = urlDatabase[id];
-  res.redirect(longURL);
+  if (!longURL) {
+    res.status(404).send('Short URL not found');
+  } else {
+    res.redirect(longURL);
+  }
 });
 
 app.get('/urls/new', (req, res) => {
   const userId = req.cookies.userRandomID;
   const user = users[userId];
 
-  const templateVars = {
-    user: user
-  };
-  res.render('urls_new', templateVars);
+  if (!user) {
+    res.redirect('/login');
+  } else {
+    const templateVars = {
+      user: user
+    };
+    res.render('urls_new', templateVars);
+  }
 });
 
 app.get('/urls', (req, res) => {
